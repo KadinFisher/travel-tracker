@@ -1,3 +1,4 @@
+// PROVIDED FOR YOU -- DO NOT CHANGE
 // "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=0&longitude=0"
 
 import { useEffect, useState } from "react";

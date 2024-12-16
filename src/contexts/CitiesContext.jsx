@@ -19,25 +19,23 @@ const initialState = {
 function reducer(state, action) {
   switch (action.type) {
     case "loading":
-      return { ...state, isLoading: true };
+      return { ...state, isLoading: true, error: "" };
 
     case "cities/loaded":
+      return { ...state, isLoading: false, cities: action.payload };
+
+    case "city/loaded":
       return {
         ...state,
         isLoading: false,
-        cities: Object.values(action.payload),
-        citiesData: action.payload,
+        currentCity: action.payload,
       };
-
-    case "city/loaded":
-      return { ...state, isLoading: false, currentCity: action.payload };
 
     case "city/created":
       return {
         ...state,
         isLoading: false,
         cities: [...state.cities, action.payload],
-        currentCity: action.payload,
       };
 
     case "city/deleted":
@@ -45,7 +43,6 @@ function reducer(state, action) {
         ...state,
         isLoading: false,
         cities: state.cities.filter((city) => city.id !== action.payload),
-        currentCity: {},
       };
 
     case "rejected":
@@ -56,7 +53,7 @@ function reducer(state, action) {
       };
 
     default:
-      throw new Error("Unknown action type");
+      throw new Error(`Unhandled action type: ${action.type}`);
   }
 }
 
@@ -67,18 +64,27 @@ function CitiesProvider({ children }) {
   useEffect(function () {
     async function fetchCities() {
       dispatch({ type: "loading" });
-
+    
       try {
         const res = await fetch(
           `https://worldwise-aebd9-default-rtdb.europe-west1.firebasedatabase.app/data/cities.json`
         );
-
+    
         const data = await res.json();
-
-        if (data.length === 0) return;
-
-        dispatch({ type: "cities/loaded", payload: data });
-      } catch {
+    
+        if (!data || Object.keys(data).length === 0) return;
+    
+        const formattedData = Object.values(data).filter((city) => {
+          if (!city.position || city.position.lat === undefined || city.position.lng === undefined) {
+            console.warn(`Skipping city with invalid position data:`, city);
+            return false; // Exclude invalid city
+          }
+          return true; // Include valid city
+        });
+    
+        dispatch({ type: "cities/loaded", payload: formattedData });
+      } catch (error) {
+        console.error("Error fetching cities:", error);
         dispatch({
           type: "rejected",
           payload: "There was an error loading cities...",
@@ -90,16 +96,18 @@ function CitiesProvider({ children }) {
 
   const getCity = useCallback(async function getCity(id) {
     dispatch({ type: "loading" });
-
+  
     try {
       const res = await fetch(
-        `https://worldwise-aebd9-default-rtdb.europe-west1.firebasedatabase.app/data/cities.json`
+        `https://worldwise-aebd9-default-rtdb.europe-west1.firebasedatabase.app/data/cities/${id}.json`
       );
-
+  
       const data = await res.json();
-      const filtered = await Object.values(data).find((city) => city.id === id);
+      console.log("Fetched city data:", data); // Log fetched city data
 
-      dispatch({ type: "city/loaded", payload: filtered });
+      if (!data) return;
+      
+      dispatch({ type: "city/loaded", payload: data });
     } catch {
       dispatch({
         type: "rejected",
@@ -174,6 +182,7 @@ function useCities() {
   const context = useContext(CitiesContext);
   if (context === undefined)
     throw new Error("CitiesContext was used outside the CitiesProvider");
+  console.log("useCities context:", context);
   return context;
 }
 

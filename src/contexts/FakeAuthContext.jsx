@@ -1,3 +1,4 @@
+// PROVIDED FOR YOU -- DO NOT CHANGE
 import { createContext, useContext, useReducer } from "react";
 
 const AuthContext = createContext();

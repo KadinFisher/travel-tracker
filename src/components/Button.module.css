@@ -17,8 +17,18 @@
 
 .back {
   font-weight: 600;
-  background: none;
-  border: 1px solid currentColor;
+  background: #4a90e2; /* Light blue background for better visibility */
+  border: 1px solid #4a90e2; /* Match the border with the background */
+  color: #fff; /* White text for contrast */
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1.4rem;
+  transition: all 0.3s ease;
+}
+
+.back:hover {
+  background-color: #357abd; /* Darker blue on hover */
+  transform: scale(1.05);
 }
 
 .position {

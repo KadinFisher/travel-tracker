@@ -25,10 +25,13 @@ function App() {
         <BrowserRouter>
           <Suspense fallback={<SpinnerFullPage />}>
             <Routes>
-              <Route index element={<Homepage />} />
-              <Route path="product" element={<Product />} />
-              <Route path="pricing" element={<Pricing />} />
-              <Route path="login" element={<Login />} />
+              {/* ADD ROUTES FOR Homepage, Product, Pricing, and Login */}
+              <Route path="/" element={<Homepage />} />
+              <Route path="/product" element={<Product />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/login" element={<Login />} />
+
+              {/* PROTECTED ROUTES */}
               <Route
                 path="app"
                 element={
@@ -37,12 +40,17 @@ function App() {
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<Navigate replace to="cities" />} />
+                {/* ADD ROUTES FOR Cities, Countries, and Form */}
                 <Route path="cities" element={<CityList />} />
-                <Route path="cities/:id" element={<City />} />
                 <Route path="countries" element={<CountryList />} />
+                <Route path="cities/:id" element={<City />} />
                 <Route path="form" element={<Form />} />
+
+                {/* Default Route for Protected App */}
+                <Route index element={<Navigate replace to="cities" />} />
               </Route>
+
+              {/* ADD ROUTES FOR PAGE NOT FOUND COMPONENT */}
               <Route path="*" element={<PageNotFound />} />
             </Routes>
           </Suspense>
@@ -53,3 +61,4 @@ function App() {
 }
 
 export default App;
+
